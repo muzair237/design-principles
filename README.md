@@ -59,8 +59,9 @@ class UserService {
 ```
 
 🔴 **Issues:** :
-1) This class handles multiple responsibilities (user registration, email notifications, and report generation).
-2) If we modify the reporting logic, we might introduce bugs that affect user registration because both functionalities exist in the same class. A failure in generating reports could potentially crash or disrupt the entire UserService, impacting user-related operations.
+
+1. This class handles multiple responsibilities (user registration, email notifications, and report generation).
+2. If we modify the reporting logic, we might introduce bugs that affect user registration because both functionalities exist in the same class. A failure in generating reports could potentially crash or disrupt the entire UserService, impacting user-related operations.
 
 ✅ **Better Approach: Separate Responsibilities into Different Classes:** :
 
@@ -85,8 +86,9 @@ class ReportService {
 ```
 
 ✅ **Benifits:** :
-1) Each class has a single responsibility, making changes more manageable.
-2) Loosely coupled components that can be modified independently.
+
+1. Each class has a single responsibility, making changes more manageable.
+2. Loosely coupled components that can be modified independently.
 
 ### 2️⃣ Open/Closed Principle (OCP)
 
@@ -108,8 +110,9 @@ class PaymentService {
 ```
 
 🔴 **Issues:** :
-1) Every time we add a new payment method (e.g., Crypto), we have to modify the ```PaymentService``` class.
-2) This violates OCP since changes are required for every new feature.
+
+1. Every time we add a new payment method (e.g., Crypto), we have to modify the `PaymentService` class.
+2. This violates OCP since changes are required for every new feature.
 
 ✅ **Better Approach: Separate Responsibilities into Different Classes:** :
 
@@ -138,8 +141,9 @@ class PaymentService {
 ```
 
 ✅ **Benifits:** :
-1) We can add new payment methods without modifying ```PaymentService```.
-2) The system is easier to extend and maintain.
+
+1. We can add new payment methods without modifying `PaymentService`.
+2. The system is easier to extend and maintain.
 
 ### 3️⃣ Liskov Substitution Principle (LSP)
 
@@ -169,9 +173,10 @@ class PostpaidPayment extends PaymentMethod {
 ```
 
 🔴 **Issues:** :
-1) ```CreditCardPayment``` works fine since credit cards allow immediate deductions.
-2) But ```PostpaidPayment``` violates LSP because calling ```deductAmount()``` throws an error instead of behaving like a ```PaymentMethod```.
-3) If we substitute ```PaymentMethod``` with ```PostpaidPayment```, the program breaks unexpectedly.
+
+1. `CreditCardPayment` works fine since credit cards allow immediate deductions.
+2. But `PostpaidPayment` violates LSP because calling `deductAmount()` throws an error instead of behaving like a `PaymentMethod`.
+3. If we substitute `PaymentMethod` with `PostpaidPayment`, the program breaks unexpectedly.
 
 ✅ **Better Approach: Refactor with a More Suitable Abstraction:** :
 
@@ -198,14 +203,14 @@ class MonthlyBilling implements PostpaidPayment {
 ```
 
 ✅ **Benifits:** :
-1) Now, ```CreditCard``` and MonthlyBilling follow their respective behaviors.
-2) We no longer force postpaid payments to implement ```deductAmount()```.
+
+1. Now, `CreditCard` and MonthlyBilling follow their respective behaviors.
+2. We no longer force postpaid payments to implement `deductAmount()`.
 
 ### 4️⃣ Interface Segregation Principle (ISP)
 
 **Definition:**  
 A class should **not be forced to depend on interfaces they do not use**. In simpler terms, **large, bloated interfaces should be broken down** into **smaller, specific interfaces** so that **implementing classes only need to define the methods they actually use**.
-
 
 ❌ **Bad Example: A Single Interface for All User Actions**
 
@@ -249,8 +254,9 @@ class BasicUserReportService implements ReportService {
 ```
 
 🔴 **Issues:** :
-1) ```BasicUserReportService``` implements methods it should not have which is ```viewReport```.
-2) Unnecessary methods force developers to handle errors for invalid actions.
+
+1. `BasicUserReportService` implements methods it should not have which is `viewReport`.
+2. Unnecessary methods force developers to handle errors for invalid actions.
 
 ✅ **Better Approach: Split into Smaller Interfaces:** :
 
@@ -288,17 +294,19 @@ class BasicUserReportService implements ReportViewer {
 ```
 
 ✅ **Benifits:** :
-1) ```BasicUserReportService``` implements only what it needs.
-2) No unnecessary empty or error-throwing methods.
-3) The codebase is cleaner, easier to maintain, and more flexible.
+
+1. `BasicUserReportService` implements only what it needs.
+2. No unnecessary empty or error-throwing methods.
+3. The codebase is cleaner, easier to maintain, and more flexible.
 
 ### 5️⃣ Dependency Inversion Principle (DIP)
 
 **Definition:**  
-High-level modules should **not depend on low-level modules**. Both should depend on **abstractions**. Accordingly, abstractions should not depend on details. Details should depend on abstractions. 
-In simpler terms:  
-- **High-level modules** (business logic) should not be tightly coupled to **low-level modules** (database, APIs, libraries).  
-- Both should depend on **interfaces (abstractions)** instead of **concrete implementations**.  
+High-level modules should **not depend on low-level modules**. Both should depend on **abstractions**. Accordingly, abstractions should not depend on details. Details should depend on abstractions.
+In simpler terms:
+
+- **High-level modules** (business logic) should not be tightly coupled to **low-level modules** (database, APIs, libraries).
+- Both should depend on **interfaces (abstractions)** instead of **concrete implementations**.
 - This allows **flexibility, maintainability, and testability**.
 
 ❌ **Bad Example: Logging System in a Backend Application**
@@ -324,9 +332,10 @@ class UserService {
 ```
 
 🔴 **Issues:** :
-1) ```UserService``` is hardcoded to use ```FileLogger```.
-2) Switching to a database logger or cloud logging requires modifying ```UserService```.
-3) Testing is difficult because logs are directly written to a file.
+
+1. `UserService` is hardcoded to use `FileLogger`.
+2. Switching to a database logger or cloud logging requires modifying `UserService`.
+3. Testing is difficult because logs are directly written to a file.
 
 ✅ **Better Approach: Introduce an Abstraction (Interface):** :
 
@@ -361,22 +370,26 @@ class UserService {
 ```
 
 ✅ **Benifits:** :
-1) ```UserService``` does not depend on a concrete logger.
-2) We can switch logging implementations easily.
-3) Unit testing is simpler by injecting a mock logger.
+
+1. `UserService` does not depend on a concrete logger.
+2. We can switch logging implementations easily.
+3. Unit testing is simpler by injecting a mock logger.
 
 ---
 
 ## 2) DRY (Don't Repeat Yourself) Principle
+
 Every piece of knowledge must have a single, unambiguous, and authoritative representation within a system. In simpler terms:
+
 - **Avoid duplication** of logic, data, and code.
 - **Centralize reusable components**.
 - If a concept changes, it should **only require modification in one place**.
 
 By following **DRY**, we improve:
-- **Maintainability** – Changes in one place reflect everywhere.  
-- **Scalability** – Code is modular and easier to extend.  
-- **Readability** – Less clutter and reduced redundancy.  
+
+- **Maintainability** – Changes in one place reflect everywhere.
+- **Scalability** – Code is modular and easier to extend.
+- **Readability** – Less clutter and reduced redundancy.
 
 ❌ **Bad Example: Repeating Validation Logic in Multiple Places**
 
@@ -405,10 +418,10 @@ class UserController {
 ```
 
 🔴 **Issues:** :
-1) The same validation logic is repeated in both methods.
-2) If the validation rules change (e.g., passwords must be 8+ characters), we need to modify both places.
-3) High risk of inconsistency if one method is updated but the other isn’t.
 
+1. The same validation logic is repeated in both methods.
+2. If the validation rules change (e.g., passwords must be 8+ characters), we need to modify both places.
+3. High risk of inconsistency if one method is updated but the other isn’t.
 
 ✅ **Better Approach: Extract Validation into a Separate Function:** :
 
@@ -438,19 +451,23 @@ class UserController {
 ```
 
 ✅ **Benifits:** :
-1) Validation is now centralized in ```UserValidator```.
-2) Future changes (e.g., stricter password rules) are made in ONE place.
-3) Code is easier to read and maintain.
+
+1. Validation is now centralized in `UserValidator`.
+2. Future changes (e.g., stricter password rules) are made in ONE place.
+3. Code is easier to read and maintain.
 
 ---
 
 ## 3) YAGNI (You Ain’t Gonna Need It) Principle
+
 You should not add functionality until it is necessary.. In simpler terms:
-- **Don’t write code for features you *think* you might need in the future**.
+
+- **Don’t write code for features you _think_ you might need in the future**.
 - **Build only what is required right now**.
 - **Avoid over-engineering** by adding unnecessary complexity.
 
 By following **YAGNI**, we improve:
+
 - **Simplicity** – Less code to manage and maintain.
 - **Faster Development** – Focus on what matters.
 - **Easier Refactoring** – No unnecessary complexity.
@@ -474,10 +491,10 @@ class BlogService {
 ```
 
 🔴 **Issues:** :
-1) The ```admin``` role isn’t needed right now.
-2) Unnecessary role-checking logic adds complexity.
-3) Future-proofing too early – requirements might change.
 
+1. The `admin` role isn’t needed right now.
+2. Unnecessary role-checking logic adds complexity.
+3. Future-proofing too early – requirements might change.
 
 ✅ **Better Approach: Implement Only What’s Required:** :
 
@@ -494,22 +511,26 @@ class BlogService {
 ```
 
 ✅ **Benifits:** :
-1) Only supports the existing ```author``` role.
-2) Less code, easier to modify later.
-3) When admins are needed, we can refactor properly.
+
+1. Only supports the existing `author` role.
+2. Less code, easier to modify later.
+3. When admins are needed, we can refactor properly.
 
 ---
 
 ## 4) KISS (Keep It Simple, Stupid) Principle
+
 Most systems work best if they are kept simple rather than made complex. Therefore, simplicity should be a key goal in design, and unnecessary complexity should be avoided. In simpler terms:
+
 - **Write straightforward, clear, and easy-to-understand code**.
 - **Avoid unnecessary abstractions, over-engineering, and convoluted logic**.
 - **Prioritize readability and maintainability**.
 
 By following **DRY**, we improve:
-- **Easier debugging and maintenance** – Simple code is easier to fix.  
-- **Faster development** – No wasted time on unnecessary complexity.  
-- **Better collaboration** – Other developers can understand your code easily. 
+
+- **Easier debugging and maintenance** – Simple code is easier to fix.
+- **Faster development** – No wasted time on unnecessary complexity.
+- **Better collaboration** – Other developers can understand your code easily.
 
 ❌ **Bad Example: Using a Complex Regular Expression for a Simple Validation**
 
@@ -520,9 +541,9 @@ function isNumeric(str: string): boolean {
 ```
 
 🔴 **Issues:** :
-1) Overuse of regex for something simple.
-2) Harder to read for someone unfamiliar with regex.
 
+1. Overuse of regex for something simple.
+2. Harder to read for someone unfamiliar with regex.
 
 ✅ **Better Approach: Use a Straightforward Approach:** :
 
@@ -533,26 +554,31 @@ function isNumeric(str: string): boolean {
 ```
 
 ✅ **Benifits:** :
-1) Simple and intuitive.
-2) Easier to understand.
-3) No unnecessary regex complexity.
+
+1. Simple and intuitive.
+2. Easier to understand.
+3. No unnecessary regex complexity.
 
 ---
 
 ## 5) Law of Demeter (LoD) – "Principle of Least Knowledge"
+
 An object should only talk to its immediate friends and not to strangers. In other words a class should only interact with:
+
 - Itself (**its own methods and properties**).
 - Its **direct dependencies** (objects it directly owns).
 - Objects passed **explicitly** to it as parameters.
 
 A class **should NOT:**
+
 - Depend on the internals of other objects.
 - Call methods on objects returned by other methods (**"train wreck" or "method chaining" violation**).
 
 Why Follow **LoD**?
-- **Increases Encapsulation** – Objects don’t depend on internal details of others.  
-- **Improves Maintainability** – Fewer dependencies mean easier refactoring.  
-- **Reduces Coupling** – Changes in one class don’t break unrelated parts of the system.  
+
+- **Increases Encapsulation** – Objects don’t depend on internal details of others.
+- **Improves Maintainability** – Fewer dependencies mean easier refactoring.
+- **Reduces Coupling** – Changes in one class don’t break unrelated parts of the system.
 
 ❌ **Bad Example: Exposing Internal Data Structures**
 
@@ -585,13 +611,13 @@ const userData = new User("dynamic@example.com");
 const userService = new UserService(userData);
 
 console.log(userService.getUser().getEmail());
-
 ```
 
 🔴 **Issues:** :.
-1) The caller (console.log) is directly fetching the User object and then calling ```getEmail()```.
-1) The external code knows too much about ```User``` internal structure.
-2) If ```User``` changes, every caller needs modification.
+
+1. The caller (console.log) is directly fetching the User object and then calling `getEmail()`.
+1. The external code knows too much about `User` internal structure.
+1. If `User` changes, every caller needs modification.
 
 ✅ **Better Approach: Return Only What’s Needed:** :
 
@@ -643,8 +669,185 @@ console.log(userService.getUserEmail());
 ```
 
 ✅ **Benifits:** :
-1) Encapsulation of ```User``` internals.
-2) Only required data is exposed.
-3) Less dependency on internal structures.
+
+1. Encapsulation of `User` internals.
+2. Only required data is exposed.
+3. Less dependency on internal structures.
+
+---
+
+## 6) Composition Over Inheritance Principle
+
+**Composition over Inheritance** is a design principle that suggests **favoring composition (object delegation) over class inheritance (extending classes)** to achieve code reuse and flexibility. In simpler terms, instead of building a deep **class hierarchy** where behavior is inherited from parent classes, we **compose objects** by combining small, reusable behaviors.
+
+Why Prefer Composition Over Inheritance?
+
+- **Encapsulation** – Implementation details are hidden inside components.
+- **Flexibility** – Components can be changed at runtime, unlike fixed inheritance.
+- **Loose Coupling** – Objects depend only on required behaviors, not full parent classes.
+- **Avoids the Fragile Base Class Problem** – A change in a parent class won’t break many child classes.
+- **Better Code Reusability** – Components can be shared across different objects.
+
+❌ **Bad Example: The Fragile Base Class Problem**
+
+```ts
+class Character {
+  move() {
+    console.log("Moving...");
+  }
+}
+
+class Player extends Character {
+  attack() {
+    console.log("Player Attacks!");
+  }
+}
+
+class Enemy extends Character {
+  attack() {
+    console.log("Enemy Attacks!");
+  }
+}
+```
+
+🔴 **Issues:** :
+
+1. What if we now introduce Flying Enemies or Swimming Players?
+2. We might need multiple levels of inheritance, leading to rigid, hard-to-change code.
+3. If we add new behaviors like Stealth Mode, we either:
+   - Modify the base class (risking breaking existing classes).
+   - Create multiple subclasses (messy and redundant).
+
+✅ **Better Approach: Use Composition Instead:** :
+
+```ts
+// Independent Behaviors
+class MoveBehavior {
+  move() {
+    console.log("Moving...");
+  }
+}
+
+class AttackBehavior {
+  attack() {
+    console.log("Attacking...");
+  }
+}
+
+// Character now "has-a" behavior instead of "is-a"
+class Character {
+  constructor(
+    private moveBehavior: MoveBehavior,
+    private attackBehavior: AttackBehavior
+  ) {}
+
+  move() {
+    this.moveBehavior.move();
+  }
+
+  attack() {
+    this.attackBehavior.attack();
+  }
+}
+
+const player = new Character(new MoveBehavior(), new AttackBehavior());
+const enemy = new Character(new MoveBehavior(), new AttackBehavior());
+
+player.attack();
+enemy.move();
+```
+
+✅ **Benifits:** :
+
+1. No deep inheritance hierarchy.
+2. Easier to modify behaviors (e.g., replace `AttackBehavior` for a `StealthBehavior`).
+3. We can attach different behaviors to different objects.
+
+---
+
+## 7) Encapsulate What Varies Principle
+
+"Encapsulate What Varies" is a **core principle of software design** that suggests:
+
+- Identify the **changing parts** of a system.
+- Isolate them into **separate modules, classes, or strategies**.
+- Keep the **stable parts independent** of the variations.
+
+By doing this, we make the system **more flexible, maintainable, and extendable** without modifying existing code.
+
+❌ **Bad Example: Hardcoding the Variations**
+
+```ts
+class NotificationService {
+  sendNotification(message: string, type: string) {
+    if (type === "email") {
+      console.log(`Sending EMAIL: ${message}`);
+    } else if (type === "sms") {
+      console.log(`Sending SMS: ${message}`);
+    } else if (type === "push") {
+      console.log(`Sending PUSH NOTIFICATION: ${message}`);
+    }
+  }
+}
+
+const notifier = new NotificationService();
+notifier.sendNotification("Order Shipped!", "email");
+```
+
+🔴 **Issues:** :
+
+1. Violation of **Open-Closed Principle (OCP)** – Adding a new notification method (e.g., WhatsApp) requires modifying the existing class.
+2. The class mixes notification logic, making changes risky.
+3. If one method changes, it may break others.
+
+✅ **Better Approach: Encapsulate What Varies (Strategy Pattern):** :
+
+```ts
+interface NotificationStrategy {
+  send(message: string): void;
+}
+
+class EmailNotification implements NotificationStrategy {
+  send(message: string) {
+    console.log(`📧 Sending EMAIL: ${message}`);
+  }
+}
+
+class SMSNotification implements NotificationStrategy {
+  send(message: string) {
+    console.log(`📩 Sending SMS: ${message}`);
+  }
+}
+
+class PushNotification implements NotificationStrategy {
+  send(message: string) {
+    console.log(`🔔 Sending PUSH NOTIFICATION: ${message}`);
+  }
+}
+
+class NotificationService {
+  constructor(private strategy: NotificationStrategy) {}
+
+  notify(message: string) {
+    this.strategy.send(message);
+  }
+}
+
+const emailNotifier = new NotificationService(new EmailNotification());
+emailNotifier.notify("Your order has been shipped!");
+
+const smsNotifier = new NotificationService(new SMSNotification());
+smsNotifier.notify("Your order has been delivered!");
+
+const pushNotifier = new NotificationService(new PushNotification());
+pushNotifier.notify("Flash sale starts now!");
+
+```
+
+✅ **Benifits:** :
+
+1. Each notification type is independent and can be modified without affecting others.
+2. You can add a new notification method (e.g., WhatsApp) without modifying existing classes.
+3. The code is cleaner, modular, and scalable.
 
 ---
