@@ -19,7 +19,7 @@ Applying design principles **reduces technical debt** and **improves code longev
 
 ---
 
-## SOLID Principles
+## 1) SOLID Principles
 
 SOLID is an acronym for five key **object-oriented design principles** that help developers create **scalable, maintainable, and robust** software. These principles were introduced by **Robert C. Martin (Uncle Bob)** and are fundamental for writing **clean and flexible** code.
 
@@ -365,4 +365,134 @@ class UserService {
 2) We can switch logging implementations easily.
 3) Unit testing is simpler by injecting a mock logger.
 
+---
 
+## 2) DRY (Don't Repeat Yourself) Principle
+Every piece of knowledge must have a single, unambiguous, and authoritative representation within a system. In simpler terms:
+- **Avoid duplication** of logic, data, and code.
+- **Centralize reusable components**.
+- If a concept changes, it should **only require modification in one place**.
+
+By following **DRY**, we improve:
+- **Maintainability** – Changes in one place reflect everywhere.  
+- **Scalability** – Code is modular and easier to extend.  
+- **Readability** – Less clutter and reduced redundancy.  
+
+❌ **Bad Example: Repeating Validation Logic in Multiple Places**
+
+```ts
+class UserController {
+  registerUser(email: string, password: string): void {
+    if (!email.includes("@")) {
+      throw new Error("Invalid email format");
+    }
+    if (password.length < 6) {
+      throw new Error("Password must be at least 6 characters long");
+    }
+    console.log("User registered");
+  }
+
+  updateUser(email: string, password: string): void {
+    if (!email.includes("@")) {
+      throw new Error("Invalid email format");
+    }
+    if (password.length < 6) {
+      throw new Error("Password must be at least 6 characters long");
+    }
+    console.log("User updated");
+  }
+}
+```
+
+🔴 **Issues:** :
+1) The same validation logic is repeated in both methods.
+2) If the validation rules change (e.g., passwords must be 8+ characters), we need to modify both places.
+3) High risk of inconsistency if one method is updated but the other isn’t.
+
+
+✅ **Better Approach: Extract Validation into a Separate Function:** :
+
+```ts
+class UserValidator {
+  static validate(email: string, password: string): void {
+    if (!email.includes("@")) {
+      throw new Error("Invalid email format");
+    }
+    if (password.length < 6) {
+      throw new Error("Password must be at least 6 characters long");
+    }
+  }
+}
+
+class UserController {
+  registerUser(email: string, password: string): void {
+    UserValidator.validate(email, password);
+    console.log("User registered");
+  }
+
+  updateUser(email: string, password: string): void {
+    UserValidator.validate(email, password);
+    console.log("User updated");
+  }
+}
+```
+
+✅ **Benifits:** :
+1) Validation is now centralized in ```UserValidator```.
+2) Future changes (e.g., stricter password rules) are made in ONE place.
+3) Code is easier to read and maintain.
+
+
+## 3) YAGNI (You Ain’t Gonna Need It) Principle
+You should not add functionality until it is necessary.. In simpler terms:
+- **Don’t write code for features you *think* you might need in the future**.
+- **Build only what is required right now**.
+- **Avoid over-engineering** by adding unnecessary complexity.
+
+By following **YAGNI**, we improve:
+- **Simplicity** – Less code to manage and maintain.
+- **Faster Development** – Focus on what matters.
+- **Easier Refactoring** – No unnecessary complexity.
+
+❌ **Bad Example: Creating Role-Based Access Before It’s Needed**
+
+```ts
+class User {
+  constructor(public name: string, public role: "author" | "admin") {}
+}
+
+class BlogService {
+  createPost(user: User, content: string) {
+    if (user.role === "admin") {
+      console.log("Admins can create posts!");
+    } else if (user.role === "author") {
+      console.log("Authors can create posts!");
+    }
+  }
+}
+```
+
+🔴 **Issues:** :
+1) The ```admin``` role isn’t needed right now.
+2) Unnecessary role-checking logic adds complexity.
+3) Future-proofing too early – requirements might change.
+
+
+✅ **Better Approach: Implement Only What’s Required:** :
+
+```ts
+class User {
+  constructor(public name: string) {}
+}
+
+class BlogService {
+  createPost(user: User, content: string) {
+    console.log(`${user.name} created a post!`);
+  }
+}
+```
+
+✅ **Benifits:** :
+1) Only supports the existing ```author``` role.
+2) Less code, easier to modify later.
+3) When admins are needed, we can refactor properly.
