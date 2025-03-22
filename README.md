@@ -841,7 +841,6 @@ smsNotifier.notify("Your order has been delivered!");
 
 const pushNotifier = new NotificationService(new PushNotification());
 pushNotifier.notify("Flash sale starts now!");
-
 ```
 
 ✅ **Benifits:** :
@@ -849,5 +848,192 @@ pushNotifier.notify("Flash sale starts now!");
 1. Each notification type is independent and can be modified without affecting others.
 2. You can add a new notification method (e.g., WhatsApp) without modifying existing classes.
 3. The code is cleaner, modular, and scalable.
+
+---
+
+## 8) Hollywood Principle
+
+The **Hollywood Principle** is a **software design guideline** that states: "Don't call us, we'll call you."
+
+It means that **lower-level** components should not call **higher-level** components directly.  
+Instead, the **higher-level** components **control the flow** and decide **when** and **how** the lower-level components are used.
+
+This principle **reduces coupling** and makes the system **more flexible and maintainable**.
+
+Why do we need the **Hollywood Principle**?
+
+- **Prevents Tight Coupling** – Lower-level components should not depend directly on higher-level components.
+- **Promotes Inversion of Control (IoC)** – Higher-level modules dictate the behavior, allowing more flexibility.
+- **Improves Scalability** – New features can be added without modifying existing classes.
+- **Enhances Maintainability** – Changes in one module do not impact others significantly.
+
+❌ **Bad Example: Plugins Calling the CMS Directly**
+
+```ts
+class CMS {
+  run() {
+    console.log("CMS is running...");
+  }
+}
+
+class Plugin {
+  constructor(private cms: CMS) {}
+
+  execute() {
+    console.log("Plugin is running...");
+    this.cms.run(); // ❌ Directly calling the CMS
+  }
+}
+
+const cms = new CMS();
+const plugin = new Plugin(cms);
+plugin.execute();
+```
+
+🔴 **Issues:** :
+
+1. Plugins are tightly coupled with the CMS.
+2. Adding new plugins requires modifying existing code.
+3. Lower-level components (plugins) control execution.
+
+✅ **Better Approach: Extract Validation into a Separate Function:** :
+
+```ts
+// Step 1: Define a Plugin Interface
+interface Plugin {
+  execute(): void;
+}
+
+// Step 2: Implement Plugins Independently
+class SEOPlugin implements Plugin {
+  execute() {
+    console.log("🔍 SEO Plugin activated!");
+  }
+}
+
+class SecurityPlugin implements Plugin {
+  execute() {
+    console.log("🔒 Security Plugin activated!");
+  }
+}
+
+// Step 3: CMS Controls Plugin Execution
+class CMS {
+  private plugins: Plugin[] = [];
+
+  registerPlugin(plugin: Plugin) {
+    this.plugins.push(plugin);
+  }
+
+  run() {
+    console.log("🚀 CMS is running...");
+    this.plugins.forEach((plugin) => plugin.execute());
+  }
+}
+
+// Step 4: Usage
+const cms = new CMS();
+cms.registerPlugin(new SEOPlugin());
+cms.registerPlugin(new SecurityPlugin());
+
+cms.run();
+```
+
+✅ **Benifits:** :
+
+1. The `CMS` controls plugin execution, not the other way around.
+2. You can add new plugins without modifying the CMS.
+3. Plugins don’t need to know about the CMS internals.
+4. Plugins don’t call the CMS; the CMS calls the plugins when needed.
+
+---
+
+## 9) Program Against Abstractions Principle
+
+"Program Against Abstractions" encourages **coding against abstract interfaces rather than concrete implementations**.
+This principle aligns closely with **Dependency Inversion Principle (DIP)** and **Open-Closed Principle (OCP)** from **SOLID**.  
+It helps in building **loosely coupled, flexible, and maintainable software**.
+
+Why Do We Need to **Program Against Abstractions**?
+🔹 **Flexibility & Extensibility** – Easily swap implementations without modifying existing code.  
+🔹 **Loose Coupling** – Components depend on abstractions, not concrete classes.  
+🔹 **Scalability** – Supports future changes with minimal effort.  
+🔹 **Testability** – Makes it easier to mock dependencies in unit tests.
+
+❌ **Bad Example: Directly Programming Against a Concrete Class**
+
+```ts
+class PayPalPayment {
+  processPayment(amount: number) {
+    console.log(`💰 Processing $${amount} via PayPal`);
+  }
+}
+
+class Checkout {
+  private paymentGateway: PayPalPayment;
+
+  constructor() {
+    this.paymentGateway = new PayPalPayment();
+  }
+
+  completeOrder(amount: number) {
+    this.paymentGateway.processPayment(amount);
+  }
+}
+
+const checkout = new Checkout();
+checkout.completeOrder(100);
+```
+
+🔴 **Issues:** :
+
+1. Changing from PayPal to Stripe requires modifying the Checkout class.
+2. Can't extend functionality without modifying existing code.
+3. Hard to mock the payment processor in unit tests.
+
+✅ **Better Approach: Programming Against an Abstraction:** :
+
+```ts
+interface PaymentGateway {
+  processPayment(amount: number): void;
+}
+
+class PayPalPayment implements PaymentGateway {
+  processPayment(amount: number) {
+    console.log(`💰 Processing $${amount} via PayPal`);
+  }
+}
+
+class StripePayment implements PaymentGateway {
+  processPayment(amount: number) {
+    console.log(`💳 Processing $${amount} via Stripe`);
+  }
+}
+
+class Checkout {
+  private paymentGateway: PaymentGateway;
+
+  constructor(paymentGateway: PaymentGateway) {
+    this.paymentGateway = paymentGateway;
+  }
+
+  completeOrder(amount: number) {
+    this.paymentGateway.processPayment(amount);
+  }
+}
+
+const paypalCheckout = new Checkout(new PayPalPayment());
+paypalCheckout.completeOrder(100);
+
+const stripeCheckout = new Checkout(new StripePayment());
+stripeCheckout.completeOrder(150);
+```
+
+✅ **Benifits:** :
+
+1. New payment methods can be added without modifying existing code.
+2. High-level modules (Checkout) depend on abstractions (PaymentGateway), not concrete implementations.
+3. Can switch to a different payment provider without modifying the Checkout class.
+4. We can mock the PaymentGateway interface in tests.
 
 ---
