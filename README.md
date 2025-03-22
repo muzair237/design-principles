@@ -442,6 +442,7 @@ class UserController {
 2) Future changes (e.g., stricter password rules) are made in ONE place.
 3) Code is easier to read and maintain.
 
+---
 
 ## 3) YAGNI (You Ain’t Gonna Need It) Principle
 You should not add functionality until it is necessary.. In simpler terms:
@@ -496,3 +497,154 @@ class BlogService {
 1) Only supports the existing ```author``` role.
 2) Less code, easier to modify later.
 3) When admins are needed, we can refactor properly.
+
+---
+
+## 4) KISS (Keep It Simple, Stupid) Principle
+Most systems work best if they are kept simple rather than made complex. Therefore, simplicity should be a key goal in design, and unnecessary complexity should be avoided. In simpler terms:
+- **Write straightforward, clear, and easy-to-understand code**.
+- **Avoid unnecessary abstractions, over-engineering, and convoluted logic**.
+- **Prioritize readability and maintainability**.
+
+By following **DRY**, we improve:
+- **Easier debugging and maintenance** – Simple code is easier to fix.  
+- **Faster development** – No wasted time on unnecessary complexity.  
+- **Better collaboration** – Other developers can understand your code easily. 
+
+❌ **Bad Example: Using a Complex Regular Expression for a Simple Validation**
+
+```ts
+function isNumeric(str: string): boolean {
+  return /^[0-9]+$/.test(str);
+}
+```
+
+🔴 **Issues:** :
+1) Overuse of regex for something simple.
+2) Harder to read for someone unfamiliar with regex.
+
+
+✅ **Better Approach: Use a Straightforward Approach:** :
+
+```ts
+function isNumeric(str: string): boolean {
+  return !isNaN(Number(str));
+}
+```
+
+✅ **Benifits:** :
+1) Simple and intuitive.
+2) Easier to understand.
+3) No unnecessary regex complexity.
+
+---
+
+## 5) Law of Demeter (LoD) – "Principle of Least Knowledge"
+An object should only talk to its immediate friends and not to strangers. In other words a class should only interact with:
+- Itself (**its own methods and properties**).
+- Its **direct dependencies** (objects it directly owns).
+- Objects passed **explicitly** to it as parameters.
+
+A class **should NOT:**
+- Depend on the internals of other objects.
+- Call methods on objects returned by other methods (**"train wreck" or "method chaining" violation**).
+
+Why Follow **LoD**?
+- **Increases Encapsulation** – Objects don’t depend on internal details of others.  
+- **Improves Maintainability** – Fewer dependencies mean easier refactoring.  
+- **Reduces Coupling** – Changes in one class don’t break unrelated parts of the system.  
+
+❌ **Bad Example: Exposing Internal Data Structures**
+
+```ts
+class User {
+  private email: string;
+
+  constructor(email: string) {
+    this.email = email;
+  }
+
+  getEmail(): string {
+    return this.email;
+  }
+}
+
+class UserService {
+  private user: User;
+
+  constructor(user: User) {
+    this.user = user;
+  }
+
+  getUser(): User {
+    return this.user;
+  }
+}
+
+const userData = new User("dynamic@example.com");
+const userService = new UserService(userData);
+
+console.log(userService.getUser().getEmail());
+
+```
+
+🔴 **Issues:** :.
+1) The caller (console.log) is directly fetching the User object and then calling ```getEmail()```.
+1) The external code knows too much about ```User``` internal structure.
+2) If ```User``` changes, every caller needs modification.
+
+✅ **Better Approach: Return Only What’s Needed:** :
+
+```ts
+class User {
+  private email: string;
+
+  constructor(email: string) {
+    this.email = email;
+  }
+
+  getEmail(): string {
+    return this.email;
+  }
+}
+
+class UserService {
+  private user: User;
+
+  constructor(user: User) {
+    this.user = user;
+  }
+
+  getUserEmail(): string {
+    return this.user.getEmail();
+  }
+}
+
+const userData = new User("dynamic@example.com");
+const userService = new UserService(userData);
+
+console.log(userService.getUserEmail());
+  constructor(private email: string) {}
+
+  getEmail(): string {
+    return this.email;
+  }
+}
+
+class UserService {
+  getUserEmail(): string {
+    return new User("test@example.com").getEmail();
+  }
+}
+
+const userService = new UserService();
+
+console.log(userService.getUserEmail());
+```
+
+✅ **Benifits:** :
+1) Encapsulation of ```User``` internals.
+2) Only required data is exposed.
+3) Less dependency on internal structures.
+
+---
