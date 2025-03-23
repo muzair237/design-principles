@@ -460,9 +460,9 @@ class UserController {
 
 ## 3) YAGNI (You Ain’t Gonna Need It) Principle
 
-You should not add functionality until it is necessary.. In simpler terms:
+You should not add functionality until it is necessary. In simpler terms:
 
-- **Don’t write code for features you _think_ you might need in the future**.
+- **Don’t write code for features you think you might need in the future**.
 - **Build only what is required right now**.
 - **Avoid over-engineering** by adding unnecessary complexity.
 
@@ -648,24 +648,8 @@ class UserService {
 
 const userData = new User("dynamic@example.com");
 const userService = new UserService(userData);
-
 console.log(userService.getUserEmail());
-  constructor(private email: string) {}
 
-  getEmail(): string {
-    return this.email;
-  }
-}
-
-class UserService {
-  getUserEmail(): string {
-    return new User("test@example.com").getEmail();
-  }
-}
-
-const userService = new UserService();
-
-console.log(userService.getUserEmail());
 ```
 
 ✅ **Benifits:** :
@@ -867,84 +851,78 @@ Why do we need the **Hollywood Principle**?
 - **Improves Scalability** – New features can be added without modifying existing classes.
 - **Enhances Maintainability** – Changes in one module do not impact others significantly.
 
-❌ **Bad Example: Plugins Calling the CMS Directly**
+❌ **Bad Example: Without Hollywood Principle (Tightly Coupled) and every observer manually asking for updates:**
 
 ```ts
-class CMS {
-  run() {
-    console.log("CMS is running...");
+class NewsAgency {
+  getNews() {
+    return "Breaking News: Observer Pattern Explained!";
   }
 }
 
-class Plugin {
-  constructor(private cms: CMS) {}
+class Subscriber {
+  constructor(private agency: NewsAgency) {}
 
-  execute() {
-    console.log("Plugin is running...");
-    this.cms.run(); // ❌ Directly calling the CMS
+  checkNews() {
+    console.log("Subscriber checking news:", this.agency.getNews());
   }
 }
 
-const cms = new CMS();
-const plugin = new Plugin(cms);
-plugin.execute();
+const agency = new NewsAgency();
+const user1 = new Subscriber(agency);
+const user2 = new Subscriber(agency);
+
+user1.checkNews();
+user2.checkNews();
+
 ```
 
 🔴 **Issues:** :
 
-1. Plugins are tightly coupled with the CMS.
-2. Adding new plugins requires modifying existing code.
-3. Lower-level components (plugins) control execution.
+1. Subscribers actively call NewsAgency instead of waiting for updates.
+2. If nothing changes, subscribers still keep asking.
+3. Subscribers directly depend on the news agency.
 
-✅ **Better Approach: Extract Validation into a Separate Function:** :
+✅ **Better Approach: With Hollywood Principle (Loosely Coupled) and news agency decided when to notify:** :
 
 ```ts
-// Step 1: Define a Plugin Interface
-interface Plugin {
-  execute(): void;
-}
+class NewsAgency {
+  private subscribers: Subscriber[] = [];
 
-// Step 2: Implement Plugins Independently
-class SEOPlugin implements Plugin {
-  execute() {
-    console.log("🔍 SEO Plugin activated!");
+  subscribe(subscriber: Subscriber) {
+    this.subscribers.push(subscriber);
+  }
+
+  publishNews(news: string) {
+    console.log("NewsAgency: Publishing news...");
+    this.subscribers.forEach(sub => sub.update(news));
   }
 }
 
-class SecurityPlugin implements Plugin {
-  execute() {
-    console.log("🔒 Security Plugin activated!");
+class Subscriber {
+  constructor(private name: string) {}
+
+  update(news: string) {
+    console.log(`${this.name} received news: ${news}`);
   }
 }
 
-// Step 3: CMS Controls Plugin Execution
-class CMS {
-  private plugins: Plugin[] = [];
+const agency = new NewsAgency();
+const user1 = new Subscriber("User1");
+const user2 = new Subscriber("User2");
 
-  registerPlugin(plugin: Plugin) {
-    this.plugins.push(plugin);
-  }
+agency.subscribe(user1);
+agency.subscribe(user2);
 
-  run() {
-    console.log("🚀 CMS is running...");
-    this.plugins.forEach((plugin) => plugin.execute());
-  }
-}
-
-// Step 4: Usage
-const cms = new CMS();
-cms.registerPlugin(new SEOPlugin());
-cms.registerPlugin(new SecurityPlugin());
-
-cms.run();
+agency.publishNews("Breaking News: Observer Pattern Explained!");
 ```
 
 ✅ **Benifits:** :
 
-1. The `CMS` controls plugin execution, not the other way around.
-2. You can add new plugins without modifying the CMS.
-3. Plugins don’t need to know about the CMS internals.
-4. Plugins don’t call the CMS; the CMS calls the plugins when needed.
+1. Subscribers register, but the agency decides when to send updates.
+2. Subscribers don’t need to constantly check for updates.
+3. Only updates when new information is available.
+4. This is how news apps, event listeners, and pub-sub systems work.
 
 ---
 
@@ -955,10 +933,10 @@ This principle aligns closely with **Dependency Inversion Principle (DIP)** and 
 It helps in building **loosely coupled, flexible, and maintainable software**.
 
 Why Do We Need to **Program Against Abstractions**?
-🔹 **Flexibility & Extensibility** – Easily swap implementations without modifying existing code.  
-🔹 **Loose Coupling** – Components depend on abstractions, not concrete classes.  
-🔹 **Scalability** – Supports future changes with minimal effort.  
-🔹 **Testability** – Makes it easier to mock dependencies in unit tests.
+- **Flexibility & Extensibility** – Easily swap implementations without modifying existing code.  
+- **Loose Coupling** – Components depend on abstractions, not concrete classes.  
+- **Scalability** – Supports future changes with minimal effort.  
+- **Testability** – Makes it easier to mock dependencies in unit tests.
 
 ❌ **Bad Example: Directly Programming Against a Concrete Class**
 
